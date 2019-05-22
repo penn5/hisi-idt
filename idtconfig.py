@@ -19,4 +19,5 @@ def get_images(xml: bytes):
     for img in std_images:
         if not img.get("identifier") in ddr_ids:
             images[int(img.get("address"), 0)] = img.text
+    print(images)
     return images
