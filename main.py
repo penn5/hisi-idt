@@ -18,7 +18,7 @@ def main(config, device, chip=""):
     images = configparser.get_images(config)
     flasher = imageflasher.ImageFlasher(chip)
     if device != False: # We have to check not False rather than just True, because None evaluates to False, and None should be passed intact
-        flasher.connect_device(device)
+        flasher.connect_serial(device)
     for addr, fil in images:
         flasher.download_from_disk(os.path.join(os.path.dirname(config.path), fil.replace("/", os.path.sep)), addr)
     print("Flash successful!")
