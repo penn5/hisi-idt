@@ -21,4 +21,3 @@ def get_images(xml: bytes):
         if not img.get("identifier") in ddr_ids:
             images[int(img.get("address"), 0)] = img.text
     print(images)
-get_images(open("COL-BD_1.0.0.35_Download.xml", "rb").read()) # Should be rb
