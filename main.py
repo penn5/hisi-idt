@@ -16,7 +16,7 @@ import argparse
 def main(config, device, chip=""):
     # First parse the config
     images = configparser.get_images(config.read())
-    flasher = imageflasher.ImageFlasher(chip))
+    flasher = imageflasher.ImageFlasher(chip)
     if device != False: # We have to check not False rather than just True, because None evaluates to False, and None should be passed intact
         flasher.connect_device(device)
     for addr, fil in images:
