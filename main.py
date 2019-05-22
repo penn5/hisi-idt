@@ -15,7 +15,7 @@ import argparse
 
 def main(config, device, chip=""):
     # First parse the config
-    images = configparser.get_images(config.read())
+    images = configparser.get_images(config)
     flasher = imageflasher.ImageFlasher(chip)
     if device != False: # We have to check not False rather than just True, because None evaluates to False, and None should be passed intact
         flasher.connect_device(device)
@@ -35,4 +35,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     parser.add_argument("--device", "-d")
     parser.add_argument("config", type=argparse.FileType("rb"))
     args = parser.parse_args()
-    main(args.config.read(), main.device if main.run else False)
+    main(args.config.read(), args.device if args.run else False)
