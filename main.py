@@ -20,7 +20,7 @@ def main(config, device, chip=""):
     if device != False: # We have to check not False rather than just True, because None evaluates to False, and None should be passed intact
         flasher.connect_device(device)
     for addr, fil in images:
-        flasher.download_from_disk(os.path.join(os.path.join(os.path.dirname(config.path), fil.replace("/", os.path.sep)), addr)
+        flasher.download_from_disk(os.path.join(os.path.dirname(config.path), fil.replace("/", os.path.sep)), addr)
     print("Flash successful!")
 
 if __name__ == "__main__":
