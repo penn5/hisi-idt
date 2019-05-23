@@ -139,7 +139,7 @@ class ImageFlasher():
             length = len(data)
         if length == 0 or not isinstance(length, int):
             raise FlashException(INVALID_LENGTH)
-        nframes = length // MAX_DATA_LEN
+        nframes = length // MAX_DATA_LEN + (1 if length % MAX_DATA_LEN > 0 else 0)
         self.send_head_frame(length, address)
         n = 0
         while length > MAX_DATA_LEN:
