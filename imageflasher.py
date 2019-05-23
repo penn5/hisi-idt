@@ -34,27 +34,33 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("imageflasher")
 
 startframe = {
-    'hi3660': bytes([0xFE,0x00,0xFF,0x01,0x00,0x00,0x00,0x04,0x00,0x00,0x02,0x01]),
+    "hi3660": bytes([0xFE,0x00,0xFF,0x01,0x00,0x00,0x00,0x04,0x00,0x00,0x02,0x01]),
 
-    '': bytes([0xFE,0x00,0xFF,0x01,0x00,0x00,0x00,0x04,0x00,0x00,0x02,0x01])
+    "": bytes([0xFE,0x00,0xFF,0x01,0x00,0x00,0x00,0x04,0x00,0x00,0x02,0x01])
 }
 
 headframe = {
-    'hi3660': bytes([0xFE,0x00,0xFF,0x01]),
+    "hi3660": bytes([0xFE,0x00,0xFF,0x01]),
 
-    '': bytes([0xFE,0x00,0xFF,0x01])
+    "": bytes([0xFE,0x00,0xFF,0x01])
 }
 
 dataframe = {
-    'hi3660': bytes([0xDA]),
+    "hi3660": bytes([0xDA]),
 
-    '': bytes([0xDA])
+    "": bytes([0xDA])
 }
 
 tailframe = {
-    'hi3660': bytes([0xED]),
+    "hi3660": bytes([0xED]),
 
-    '': bytes([0xED])
+    "": bytes([0xED])
+}
+
+ack = {
+    "hi3660": bytes([0xAA]),
+
+    "": bytes([0xAA])
 }
 
 BOOT_HEAD_LEN = 0x4F00
@@ -76,10 +82,12 @@ class ImageFlasher():
         self.headframe = headframe.get(chip, headframe[""])
         self.dataframe = dataframe.get(chip, dataframe[""])
         self.tailframe = tailframe.get(chip, tailframe[""])
+        self.ack = ack.get(chip, ack[""])
+        self.serial = None
 
     def send_frame(self, data, loop):
         crc = calc_crc(data)
-        data = data + crc.to_bytes(2, byteorder='big', signed=False)
+        data = data + crc.to_bytes(2, byteorder="big", signed=False)
         for _ in itertools.repeat(None, loop-1):
             if self.serial:
                 self.serial.reset_output_buffer()
@@ -87,9 +95,9 @@ class ImageFlasher():
                 self.serial.write(data)
                 ack = self.serial.read(1)
             else:
-                ack = ACK
-            if ack and ack != ACK:
-                raise FlashException(BAD_ACK, "Invalid ACK from device. Flashing was corrupted.", ack, ACK, data, crc, data)
+                ack = self.ack
+            if ack and ack != self.ack:
+                raise FlashException(BAD_ACK, "Invalid ACK from device. Flashing was corrupted.", ack, self.ack, data, crc, data)
             else:
                 log.debug(f"Sent frame of {len(data)} bytes to device successfully! CRC16 was {crc}")
 
@@ -104,8 +112,8 @@ class ImageFlasher():
             self.serial.timeout = 0.09
         log.info("Sending header frame")
         data = self.headframe
-        data += length.to_bytes(4, byteorder='big', signed=False)
-        data += address.to_bytes(4, byteorder='big', signed=False)
+        data += length.to_bytes(4, byteorder="big", signed=False)
+        data += address.to_bytes(4, byteorder="big", signed=False)
         self.send_frame(data, 16)
 
     def send_data_frame(self, n, data):
