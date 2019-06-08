@@ -36,5 +36,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     parser.add_argument("--device", "-d")
     parser.add_argument("config")
     args = parser.parse_args()
-    with open(args.config, "rb") as f:
+    with open(args.config, "r") as f:
         main(f, args.device if args.run else False)

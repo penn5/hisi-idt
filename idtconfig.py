@@ -14,7 +14,7 @@ def get_images(cfg: bytes):
     try:
         tree = etree.fromstring(cfg)
     except:
-        return get_simple(cfg.decode("utf-8"))
+        return get_simple(cfg)
     ddr_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage_ddr/image")
     std_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage/image")
     images = {int(img.get("address"), 0):img.text for img in ddr_images}
@@ -27,10 +27,10 @@ def get_images(cfg: bytes):
 
 def get_simple(cfg):
     ret = {}
-    for line in cfg.readlines:
+    for line in cfg.split("\n"):
         match = re.fullmatch(r"(\w+)(?:\W+)(.+)")
         if not match:
-            return None
+            continue
         addr = int(match[1], 0)
         file = match[2]
         ret[addr] = file
