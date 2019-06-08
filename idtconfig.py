@@ -29,7 +29,7 @@ def get_images(cfg: bytes):
 def get_simple(cfg):
     ret = {}
     for line in cfg.split("\n"):
-        match = re.fullmatch(r"(\w+)(?:\W+)(.+)")
+        match = re.fullmatch(r"(\w+)(?:\W+)(.+)", line)
         if not match:
             continue
         addr = int(match[1], 0)
