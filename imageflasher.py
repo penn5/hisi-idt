@@ -180,7 +180,7 @@ class ImageFlasher():
                         device = port.device
         if device == None:
             raise DeviceDetectException(NOT_ENOUGH_DEVICES, "Need a device in IDT mode plugged in to this computer")
-        self.serial = serial.Serial(dsrdtr=True, rtscts=True, port=device, baudrate=IDT_BAUDRATE, timeout=1)
+        self.serial = serial.Serial(dsrdtr=True, rtscts=True, port=device.replace("COM", r"\\.\COM"), baudrate=IDT_BAUDRATE, timeout=1)
 
     def __enter__(self):
         pass
