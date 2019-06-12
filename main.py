@@ -22,7 +22,7 @@ def main(config, device, chip=""):
     for addr, fil in images.items():
         flasher.download_from_disk(os.path.join(os.path.dirname(config.name), fil.replace("/", os.path.sep)), addr)
     print("Flash successful!")
-    print("Now unground the testpoint and use fastboot to recover your system.")
+    print("Wait around 5 minutes with the USB plugged in and the device will enter fastboot. Use fastboot to reflash/recover your system.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(epilog="""Copyright 2019 Penn Mackintosh
