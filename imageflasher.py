@@ -147,8 +147,8 @@ class ImageFlasher():
                 f = data[n*MAX_DATA_LEN:(n+1)*MAX_DATA_LEN]
             else:
                 f = data.read(MAX_DATA_LEN)
-            self.send_data_frame(n, f)
             n += 1
+            self.send_data_frame(n, f)
             length -= MAX_DATA_LEN
             print(f"frame {n}; total frames {nframes}; % complete {100*n/nframes}", end="\r")
         if length:
@@ -156,6 +156,7 @@ class ImageFlasher():
                 f = data[n*MAX_DATA_LEN:]
             else:
                 f = data.read()
+            n += 1
             self.send_data_frame(n, f)
         print(f"frame {n}; total frames {nframes}; % complete {100*n/nframes}")
         self.send_tail_frame(n+1)
