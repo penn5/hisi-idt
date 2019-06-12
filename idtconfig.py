@@ -15,16 +15,18 @@ def get_images(cfg: bytes):
     try:
         tree = etree.fromstring(cfg)
     except:
-        return get_simple(cfg)
+        raise
+        return get_simple(cfg.decode("utf-8")), {}
     ddr_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage_ddr/image")
     std_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage/image")
-    images = {int(img.get("address"), 0):img.text for img in ddr_images}
+    idt_images = {int(img.get("address"), 0):img.text for img in ddr_images}
     ddr_ids = [img.get("identifier") for img in ddr_images]
     for img in std_images:
         if not img.get("identifier") in ddr_ids:
-            images[int(img.get("address"), 0)] = img.text
-    print(images)
-    return images
+            idt_images[int(img.get("address"), 0)] = img.text
+    print(idt_images)
+    fastboot_images = {img.get("identifier", 0):img.text for img in tree.xpath("(//configurations/configuration)[1]/fastbootimage/image")}
+    return idt_images, fastboot_images
 
 def get_simple(cfg):
     ret = {}
