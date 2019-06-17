@@ -18,7 +18,7 @@ def main(config, device, full, chip=""):
     # First parse the config
     idt_images, fastboot_images = idtconfig.get_images(config.read())
     flasher = imageflasher.ImageFlasher(chip)
-    if device != False: # We have to check not False rather than just True, because None evaluates to False, and None should be passed intact
+    if not device is False:
         flasher.connect_serial(device)
     for addr, fil in idt_images.items():
         flasher.download_from_disk(os.path.join(os.path.dirname(config.name), fil.replace("/", os.path.sep)), addr)
@@ -40,7 +40,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.""")
     parser.add_argument("--norun", "-n", action="store_false", dest="run")
     parser.add_argument("--device", "-d")
-    parser.add_argument("--fastboot", "--full", "-f", help="Flashes all fastboot images from the IDT config as well. Not supported with hikey config", action="store_true", default=False, dest="full")
+    parser.add_argument("--fastboot", "--full", "-f", help="Flashes all fastboot images from the IDT config as well. Will erase IMEI, SN, etc. Not supported with hikey config", action="store_true", default=False, dest="full")
     parser.add_argument("config")
     args = parser.parse_args()
     with open(args.config, "rb") as f:

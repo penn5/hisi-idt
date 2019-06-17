@@ -23,7 +23,7 @@ def flash(parts):
         except DeviceNotFoundError:
             time.sleep(10)
     # For faster flashing we take advantage of "ultraflash" which lets you stream the image
-    for partition, file in parts.items():
+    for partition, file in parts:
         # File must be a filename, not a file()
         fdev._SimpleCommand(b'ultraflash', arg=partition, info_cb=info_cb, timeout_ms=0)
         fdev.Download(file, info_cb=info_cb, progress_callback=progress_cb)

@@ -9,7 +9,7 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from lxml import etree
-import re
+import re, os
 
 def get_images(cfg: bytes):
     try:
@@ -19,13 +19,17 @@ def get_images(cfg: bytes):
         return get_simple(cfg.decode("utf-8")), {}
     ddr_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage_ddr/image")
     std_images = tree.xpath("(//configurations/configuration)[1]/bootloaderimage/image")
-    idt_images = {int(img.get("address"), 0):img.text for img in ddr_images}
-    ddr_ids = [img.get("identifier") for img in ddr_images]
+    idt_images = {}
+    ddr_ids = []
+    for img in ddr_images:
+        if os.path.isfile(img.text):
+            idt_images[int(img.get("address"), 0)] = img.text
+            ddr_ids += [img.get("identifier")]
     for img in std_images:
         if not img.get("identifier") in ddr_ids:
             idt_images[int(img.get("address"), 0)] = img.text
     print(idt_images)
-    fastboot_images = {img.get("identifier", 0):img.text for img in tree.xpath("(//configurations/configuration)[1]/fastbootimage/image")}
+    fastboot_images = [(img.get("identifier", 0),img.text) for img in tree.xpath("(//configurations/configuration)[1]/fastbootimage/image")]
     return idt_images, fastboot_images
 
 def get_simple(cfg):
