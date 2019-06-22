@@ -9,7 +9,7 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import binascii, itertools, logging, serial, serial.tools.list_ports, os
+import binascii, itertools, logging, serial, serial.tools.list_ports, os, time
 
 def calc_crc(data, crc=0):
     for char in data:
@@ -88,19 +88,25 @@ class ImageFlasher():
     def send_frame(self, data, loop):
         crc = calc_crc(data)
         data = data + crc.to_bytes(2, byteorder="big", signed=False)
+        fails = []
         for _ in itertools.repeat(None, loop-1):
-            if self.serial:
-                self.serial.reset_output_buffer()
-                self.serial.reset_input_buffer()
-                self.serial.write(data)
-                ack = self.serial.read(1)
-            else:
-                ack = self.ack
-            if ack and ack != self.ack:
-                print()
-                raise FlashException(BAD_ACK, "Invalid ACK from device. Flashing was corrupted.", ack, self.ack, data, crc, data)
-            else:
-                log.debug(f"Sent frame of {len(data)} bytes to device successfully! CRC16 was {crc}")
+            try:
+                if self.serial:
+                    self.serial.reset_output_buffer()
+                    self.serial.reset_input_buffer()
+                    self.serial.write(data)
+                    ack = self.serial.read(1)
+                else:
+                    ack = self.ack
+                if ack and ack != self.ack:
+                    fails += [FlashException(BAD_ACK, "Invalid ACK from device. Flashing was corrupted.", ack, self.ack, data, crc, data)]
+                else:
+                    return
+                    log.debug(f"Sent frame of {len(data)} bytes to device successfully! CRC16 was {crc}")
+            except Exception as e:
+                fails += [e]
+        for ex in fails:
+            raise ex
 
     def send_start_frame(self):
         if self.serial:
@@ -115,19 +121,16 @@ class ImageFlasher():
         data = self.headframe
         data += length.to_bytes(4, byteorder="big", signed=False)
         data += address.to_bytes(4, byteorder="big", signed=False)
-        self.send_frame(data, 16)
+        self.send_frame(data, 10)
 
     def send_data_frame(self, n, data):
-        if all([v == 0 for v in data]):
-            log.error("Data is all nul")
-            return False
         if self.serial:
             self.serial.timeout = 0.45
         logging.debug("Sending data frame")
         head = bytearray(self.dataframe)
         head.append(n & 0xFF)
         head.append((~ n) & 0xFF)
-        self.send_frame(bytes(head) + data, 32)
+        self.send_frame(bytes(head) + data, 40)
         return True
 
     def send_tail_frame(self, n):
@@ -137,7 +140,7 @@ class ImageFlasher():
         data = bytearray(self.tailframe)
         data.append(n & 0xFF)
         data.append((~ n) & 0xFF)
-        self.send_frame(bytes(data), 16)
+        self.send_frame(bytes(data), 10)
 
     def send_data(self, data, length, address):
         if isinstance(data, bytes):
@@ -166,6 +169,7 @@ class ImageFlasher():
         print(f"frame {n}; total frames {nframes}; % complete {100*n/nframes}")
         self.send_tail_frame(n+1)
         print("DONE!!!")
+        time.sleep(0.5)
 
     def download_from_disk(self, fil, address):
         if fil == "-":
