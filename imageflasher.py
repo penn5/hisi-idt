@@ -118,6 +118,9 @@ class ImageFlasher():
         self.send_frame(data, 16)
 
     def send_data_frame(self, n, data):
+        if all([v == 0 for v in data]):
+            log.error("Data is all nul")
+            return False
         if self.serial:
             self.serial.timeout = 0.45
         logging.debug("Sending data frame")
@@ -125,6 +128,7 @@ class ImageFlasher():
         head.append(n & 0xFF)
         head.append((~ n) & 0xFF)
         self.send_frame(bytes(head) + data, 32)
+        return True
 
     def send_tail_frame(self, n):
         if self.serial:
@@ -148,8 +152,8 @@ class ImageFlasher():
                 f = data[n*MAX_DATA_LEN:(n+1)*MAX_DATA_LEN]
             else:
                 f = data.read(MAX_DATA_LEN)
+            self.send_data_frame(n+1, f)
             n += 1
-            self.send_data_frame(n, f)
             length -= MAX_DATA_LEN
             print(f"frame {n}; total frames {nframes}; % complete {100*n/nframes}", end="\r")
         if length:
@@ -157,8 +161,8 @@ class ImageFlasher():
                 f = data[n*MAX_DATA_LEN:]
             else:
                 f = data.read()
+            self.send_data_frame(n+1, f)
             n += 1
-            self.send_data_frame(n, f)
         print(f"frame {n}; total frames {nframes}; % complete {100*n/nframes}")
         self.send_tail_frame(n+1)
         print("DONE!!!")
