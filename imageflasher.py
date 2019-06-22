@@ -97,6 +97,7 @@ class ImageFlasher():
             else:
                 ack = self.ack
             if ack and ack != self.ack:
+                print()
                 raise FlashException(BAD_ACK, "Invalid ACK from device. Flashing was corrupted.", ack, self.ack, data, crc, data)
             else:
                 log.debug(f"Sent frame of {len(data)} bytes to device successfully! CRC16 was {crc}")
