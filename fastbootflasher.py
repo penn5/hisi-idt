@@ -10,7 +10,7 @@ def info_cb(fdev, partition, image, msg):
         print(msg)
         if msg.message == b"ultraflash not permitted\x00":
             # try normal flash
-            fdev.FlashFromFile(partition, file, info_cb=functools.partial(info_cb, fdev, partition, image), progress_callback=progress_cb)
+            fdev.FlashFromFile(partition, image, info_cb=functools.partial(info_cb, fdev, partition, image), progress_callback=progress_cb)
         raise RuntimeError("Flash Failed")
     print(msg)
 
