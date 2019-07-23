@@ -28,6 +28,7 @@ def flash(parts):
             time.sleep(10)
     # For faster flashing we take advantage of "ultraflash" which lets you stream the image
     for partition, file in parts:
+        print (partition, file)
         # File must be a filename, not a file()
         if partition == "huawei_crc_check":
             fdev.FlashFromFile(partition, file, info_cb=functools.partial(info_cb, fdev, partition, file), progress_callback=progress_cb)
