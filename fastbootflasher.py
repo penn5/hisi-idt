@@ -32,6 +32,6 @@ def flash(parts):
         except FastbootRemoteFailure as e:
             if e.args[1] == b"ultraflash not permitted\x00":
                 # try normal flash
-                fdev.FlashFromFile(partition, image, info_cb=info_cb, progress_callback=progress_cb)
+                fdev.FlashFromFile(partition, file, info_cb=info_cb, progress_callback=progress_cb)
             else:
                 raise
