@@ -26,7 +26,7 @@ def main(config, device, full, chip=""):
     if full:
         print(idt_images, fastboot_images)
         print("Waiting for device to connect. Please do not disconnect the USB or reboot the device.")
-        fastbootflasher.flash([(k, os.path.join(os.path.dirname(config.name), v.replace("/", os.path.sep))) for k, v in fastboot_images if not ('MODEM' in k.upper() or 'NVM' in k.upper() or 'OEMINFO' in k.upper() or 'SYSTEM' in k.upper() or 'VENDOR' in k.upper() or 'PRODUCT' in k.upper() or 'USERDATA' in k.upper())])
+        fastbootflasher.flash([(k, os.path.join(os.path.dirname(config.name), v.replace("/", os.path.sep))) for k, v in fastboot_images if not ('MODEM' in k.upper() or 'NVM' in k.upper() or 'OEMINFO' in k.upper() or 'SYSTEM' in k.upper() or 'VENDOR' in k.upper() or 'PRODUCT' in k.upper() or 'SPLASH2' in k.upper() or 'USERDATA' in k.upper())])
     else:
         print("Wait around 5 minutes with the USB plugged in and the device will enter fastboot. Use fastboot to reflash/recover your system.")
 
